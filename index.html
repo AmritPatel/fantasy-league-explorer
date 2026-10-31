@@ -32,7 +32,7 @@
 <main id="league-explorer">
   <div class="eyebrow">FANTASY FOOTBALL / LEAGUE SNAPSHOT</div>
   <h1>Why Your Lineup Is Broken</h1>
-  <p class="muted">Compare changes in usage and efficiency across your league—tap a team to explore its players.</p>
+  <p class="muted">Compare 2025 with 2026 to spot players who have fallen off, stayed steady, or are rising in usage and efficiency. Tap a team to explore its players.</p>
   <p id="snapshot" class="meta"></p>
   <nav id="legend" class="legend" aria-label="Highlight a fantasy team"></nav>
   <div class="hint"><span>Hover or focus a team to show its roster and free-agent labels. Click or tap to keep it highlighted.</span><button id="clear" type="button">Show all teams</button></div>
@@ -46,6 +46,12 @@
   </div>
   <section class="centers-section" aria-labelledby="share-ranking-heading">
     <h2 id="share-ranking-heading">Team ranking distance</h2>
+    <p class="muted">Rankings describe improvement since 2025—not who has the best roster or is most likely to win.</p>
+    <div class="metric-guide">
+      <p class="meta"><strong>2D center distance: “How different are these teams?”</strong> Measures the straight-line distance between their average player positions on the chart, considering both touches and points per touch on comparable scales. Teams can have similar ranking scores but a large distance if one improved through more touches and the other through better efficiency.</p>
+      <p class="meta"><strong>COM score gap: “How far apart are their improvement scores?”</strong> Combines changes in touches and points per touch into one score, with equal weight. Teams with similar scores appear close together. This is the clearer view of ranking separation.</p>
+      <p class="meta">Both modes keep the same ranking order; only the spacing changes. COM (center of mass) is each team’s average player position. 2D distance is the default to emphasize differences in roster trends, rather than just the combined score.</p>
+    </div>
     <div class="ruler-toolbar"><span class="meta">Physical spacing between neighboring COM ranks</span><label for="ranking-ruler-mode">Spacing by <select id="ranking-ruler-mode"><option value="distance">2D center distance</option><option value="score">COM score gap</option></select></label></div>
     <div id="ranking-ruler" class="ranking-ruler" role="group" aria-label="Team ranking distance line"></div>
     <div class="ruler-direction"><span>Lower-ranked (COM)</span><span>Higher-ranked (COM) →</span></div>
@@ -321,12 +327,12 @@ function layoutRankingRuler(centers,{width,mode='distance'}={}){
       button.addEventListener('click',()=>{pinned=pinned===node.teamId?null:node.teamId;setActive(pinned)});
       ruler.append(button);rulerButtons.push(button);
     }
-    document.getElementById('ranking-ruler-caption').textContent=mode==='score'?'Linear COM score scale: neighboring gaps match the table’s score gap, not its 2D center distance. Team points are not evenly spaced.':'Rank-ordered distance line: each neighboring gap matches the table’s 2D center distance (SD). Spans across several teams are cumulative, not direct center-to-center distances.';
+    document.getElementById('ranking-ruler-caption').textContent=mode==='score'?'COM score gap: wider gaps mean a larger difference in improvement scores. Similar scores appear close together.':'2D center distance: wider gaps mean neighboring teams differ more in usage/efficiency trends—not necessarily a bigger ranking-score advantage. Distances across several teams add up the neighboring gaps; they are not the direct distance between those teams on the chart.';
   }
   rulerMode.addEventListener('change',renderRankingRuler);
   new ResizeObserver(()=>{if(Math.abs(ruler.getBoundingClientRect().width-(rulerState?.width??0))>.5)renderRankingRuler()}).observe(ruler);
   renderRankingRuler();
-  document.getElementById('share-notes').textContent=`Read-only snapshot · ${data.centerOfMass.reference.count}/${data.owned.length} rostered RB/WR/TE have comparable statistics. COM ranks historical usage/efficiency improvement—not team strength or predicted wins.`;
+  document.getElementById('share-notes').textContent=`Read-only snapshot · ${data.centerOfMass.reference.count}/${data.owned.length} rostered RB/WR/TE have comparable statistics. Rankings describe improvement since 2025—not who has the best roster or is most likely to win.`;
   const missingNames=rosterMissing.map(p=>esc(p.name)+' ('+p.teamCode+')').join(', ');
   document.getElementById('share-exclusions').innerHTML=`<p>Comparison: 2025 season totals vs completed 2026 Weeks 1–${data.completedThrough}; partial Week ${data.completedThrough+1} excluded. Touches = carries + receptions. Rushing/receiving full-PPR scoring, not league half-PPR.</p><p>Each comparable rostered RB/WR/TE has equal mass, including bench and IR. The ranking gives standardized usage and efficiency equal weight. Free agents are excluded from the ranking. Small samples and roster mix can influence it. Scores are not win probabilities.</p><p>Players without comparable coordinates: ${missingNames}.</p><p>Future forecasts on hover are raw ESPN forecasts, not independently injury-adjusted. This page is a fixed snapshot and does not refresh automatically.</p>`;
   const rail=document.getElementById('missing-free-agents');
