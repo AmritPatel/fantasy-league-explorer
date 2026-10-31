@@ -50,9 +50,9 @@
     <div class="metric-guide">
       <p class="meta"><strong>2D center distance: “How different are these teams?”</strong> Measures the straight-line distance between their average player positions on the chart, considering both touches and points per touch on comparable scales. Teams can have similar ranking scores but a large distance if one improved through more touches and the other through better efficiency.</p>
       <p class="meta"><strong>COM score gap: “How far apart are their improvement scores?”</strong> Combines changes in touches and points per touch into one score, with equal weight. Teams with similar scores appear close together. This is the clearer view of ranking separation.</p>
-      <p class="meta">Both modes keep the same ranking order; only the spacing changes. COM (center of mass) is each team’s average player position. 2D distance is the default to emphasize differences in roster trends, rather than just the combined score.</p>
+      <p class="meta">Both modes keep the same ranking order; only the spacing changes. COM (center of mass) is each team’s average player position. COM score gap is the default to make ranking separation easier to compare; choose 2D center distance to explore differences in roster trends.</p>
     </div>
-    <div class="ruler-toolbar"><span class="meta">Physical spacing between neighboring COM ranks</span><label for="ranking-ruler-mode">Spacing by <select id="ranking-ruler-mode"><option value="distance">2D center distance</option><option value="score">COM score gap</option></select></label></div>
+    <div class="ruler-toolbar"><span class="meta">Physical spacing between neighboring COM ranks</span><label for="ranking-ruler-mode">Spacing by <select id="ranking-ruler-mode"><option value="distance">2D center distance</option><option value="score" selected>COM score gap</option></select></label></div>
     <div id="ranking-ruler" class="ranking-ruler" role="group" aria-label="Team ranking distance line"></div>
     <div class="ruler-direction"><span>Lower-ranked (COM)</span><span>Higher-ranked (COM) →</span></div>
     <p id="ranking-ruler-caption" class="meta"></p>
