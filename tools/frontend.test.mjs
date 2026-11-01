@@ -2,9 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
+import {renderWeekly} from './publish-weekly.mjs';
 
 test('published weekly view initializes, highlights teams, switches spacing and navigates history',async()=>{
-  const html=await fs.readFile(new URL('../weekly/index.html',import.meta.url),'utf8');
+  const data=JSON.parse(await fs.readFile(new URL('../weekly/data/latest.json',import.meta.url),'utf8'));
+  const manifest=JSON.parse(await fs.readFile(new URL('../weekly/manifest.json',import.meta.url),'utf8'));
+  const template=await fs.readFile(new URL('./chart-template.html',import.meta.url),'utf8');
+  const html=renderWeekly({template,data,manifest,basePath:'/fantasy-league-explorer/'});
+  assert.ok(html.includes('<option value="/fantasy-league-explorer/weekly/" selected>Latest weekly view'));
   const app=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].at(-1)[1];
   const markup=html.replace(/<script>[\s\S]*?<\/script>/g,'');
   class Element{
@@ -29,7 +34,8 @@ test('published weekly view initializes, highlights teams, switches spacing and 
   for(const button of nodes.get('legend').children){button.emit('pointerenter');await api.whenSettled();assert.equal(api.getActive(),button.dataset.teamId);button.emit('pointerleave');await api.whenSettled();assert.equal(api.getActive(),null);}
   nodes.get('ranking-ruler-mode').value='distance';nodes.get('ranking-ruler-mode').emit('change');assert.equal(api.getRulerLayout().mode,'distance');
   const href='/fantasy-league-explorer/weekly/snapshots/example.html';nodes.get('weekly-history').emit('change',{target:{value:href}});assert.deepEqual(navigated,[href]);
-  nodes.get('weekly-history').emit('change',{target:{value:'https://example.com/'}});assert.equal(navigated.length,1);
+  nodes.get('weekly-history').emit('change',{target:{value:'/fantasy-league-explorer/weekly/'}});assert.equal(navigated.length,2);
+  nodes.get('weekly-history').emit('change',{target:{value:'https://example.com/'}});assert.equal(navigated.length,2);
   assert.equal(nodes.get('chart-corners-top').style.paddingLeft,'82px');assert.equal(nodes.get('chart-corners-bottom').style.paddingRight,'72px');
   assert.notEqual(nodes.get('error').style.display,'block');
 });

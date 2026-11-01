@@ -12,7 +12,7 @@ export function fingerprint(data){
 export function renderWeekly({template,data,manifest,basePath,archive=false}){
   validatePublicData(data);
   if(!/^\/[A-Za-z0-9/_-]+\/$/.test(basePath))throw new DataCheckError('BASE_PATH');
-  const options=manifest.entries.map(entry=>`<option value="${escape(basePath+entry.href)}"${entry.observedAt===data.observedAt?' selected':''}>Through Week ${entry.completedThrough} · ${escape(entry.observedAt.slice(0,10))} ${escape(entry.observedAt.slice(11,16))} UTC</option>`).join('');
+  const options=`<option value="${basePath}weekly/"${archive?'':' selected'}>Latest weekly view</option>`+manifest.entries.map(entry=>`<option value="${escape(basePath+entry.href)}"${archive&&entry.observedAt===data.observedAt?' selected':''}>Through Week ${entry.completedThrough} · ${escape(entry.observedAt.slice(0,10))} ${escape(entry.observedAt.slice(11,16))} UTC</option>`).join('');
   const nav=`<section class="weekly-nav" aria-label="Weekly publication status">
     <strong>${archive?'Archived snapshot':'Latest weekly view'} · ${data.season} through Week ${data.completedThrough}</strong>
     <p id="weekly-freshness" class="meta">Validated ${escape(data.observedAt)}. Checks run Tuesday–Thursday at 06:37 UTC (12:22 PM Nepal time). Refresh this page to see a newer publication.</p>
@@ -21,7 +21,7 @@ export function renderWeekly({template,data,manifest,basePath,archive=false}){
     <div class="weekly-links"><a href="${basePath}weekly/">Latest weekly view</a><a href="${basePath}weekly/history.html">All weekly snapshots</a><a href="${basePath}">Original frozen snapshot</a></div>
   </section>`;
   let html=template.replace('/* WEEKLY_DATA */',()=>JSON.stringify(data).replaceAll('<','\\u003c')).replace('<!-- WEEKLY_NAV -->',()=>nav);
-  html=html.replace("  const rosterMissing=",`  document.getElementById('weekly-history').addEventListener('change',event=>{if(event.target.value.startsWith(${JSON.stringify(basePath+'weekly/snapshots/')}))location.assign(event.target.value)});
+  html=html.replace("  const rosterMissing=",`  document.getElementById('weekly-history').addEventListener('change',event=>{if(event.target.value===${JSON.stringify(basePath+'weekly/')}||event.target.value.startsWith(${JSON.stringify(basePath+'weekly/snapshots/')}))location.assign(event.target.value)});
   const rosterMissing=`);
   if(archive)html=html.replace("if(data.completedThrough<18&&(Date.now()", "if(false&&data.completedThrough<18&&(Date.now()");
   const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];

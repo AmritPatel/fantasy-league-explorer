@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {validatePublicData} from './weekly-model.mjs';
+import {renderWeekly} from './publish-weekly.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const out=path.join(root,'_site');
 const expected=(await fs.readFile(path.join(root,'tools','frozen.sha256'),'utf8')).trim();
@@ -24,5 +25,14 @@ async function copyPublic(relative){
   }
 }
 await copyPublic('assets');await copyPublic('weekly');
+// Re-render only the latest view when presentation code changes. Archived HTML
+// and its underlying data remain immutable.
+const data=JSON.parse(await fs.readFile(path.join(root,'weekly','data','latest.json'),'utf8'));
+const manifest=JSON.parse(await fs.readFile(path.join(root,'weekly','manifest.json'),'utf8'));
+const presentation=JSON.parse(await fs.readFile(path.join(root,'tools','presentation.json'),'utf8'));
+const template=await fs.readFile(path.join(root,'tools','chart-template.html'),'utf8');
+const latestHtml=renderWeekly({template,data,manifest,basePath:presentation.basePath});
+assert.ok(!/\/Users\/|browser-profile|espn_s2|\bSWID\b|localhost|127\.0\.0\.1/i.test(latestHtml));
+await fs.writeFile(path.join(out,'weekly','index.html'),latestHtml);
 assert.equal((await fs.readFile(path.join(out,'index.html'))).compare(await fs.readFile(path.join(root,'index.html'))),0);
 console.log(JSON.stringify({built:true,output:'_site',originalFrozenPagePreserved:true,weeklyView:true}));

@@ -201,6 +201,7 @@ function compareImprovementToPower(improvementRank,powerRank,teamCount){
   const weekLabel=data.projectionWeeks.length?`Weeks ${data.projectionWeeks[0]}–${data.projectionWeeks.at(-1)}`:'No remaining regular-season weeks';
   const when=new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short',timeZoneName:undefined}).format(new Date(data.observedAt));
   const freshness=document.getElementById('weekly-freshness');
+  freshness.textContent='Last validated '+when+'. Automatic checks run Tuesday–Thursday at 12:22 PM Nepal time (06:37 UTC). Refresh this page to see a newer publication.';
   if(data.completedThrough<18&&(Date.now()-Date.parse(data.observedAt))/86400000>8){freshness.textContent='This snapshot is over 8 days old. An update may be delayed; the last validated data is still shown.';freshness.classList.add('weekly-stale');}
   const rosterMissing=data.owned.filter(p=>!p.plottable),faMissing=data.freeAgents.filter(p=>!p.plottable);
   const centers=data.centerOfMass.teams.filter(c=>c.score!==null),centerByTeam=new Map(centers.map(c=>[c.teamId,c]));
