@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fantasy League Explorer · Weekly</title>
+<meta name="description" content="Explore our fantasy league: player usage, efficiency and team ranking distances. Read-only interactive snapshot.">
+<meta property="og:title" content="Fantasy League Explorer · Weekly">
+<meta property="og:description" content="An interactive look at our fantasy league’s players and team momentum. Tap a team to explore.">
+<meta property="og:type" content="website">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<style>
+  :root{color-scheme:light dark;--bg:light-dark(#fbfaf7,#131b24);--panel:light-dark(#fff,#1b2530);--fg:light-dark(#20313f,#edf2f6);--muted:light-dark(#5b6d7a,#b1bfca);--line:light-dark(#dce3e8,#36434f);--subtle:light-dark(#f1f4f6,#22313e);--alert:light-dark(#9b3c0c,#ffb289);--accent:light-dark(#007e91,#71d5e5)}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1600px;margin:auto;padding:28px 30px 40px}h1{font-size:clamp(25px,3.2vw,39px);line-height:1.12;letter-spacing:-.035em;margin:0 0 10px}h2{font-size:17px;margin:0 0 10px}p{margin:7px 0}.muted{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.13em;font-weight:650;color:var(--muted);margin-bottom:12px}.meta{font-size:13px;color:var(--muted)}.legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px 16px;margin:22px 0 7px}.legend button{display:flex;align-items:center;gap:9px;min-height:43px;text-align:left;color:var(--fg);background:transparent;border:1px solid transparent;padding:7px;border-radius:5px;font:inherit;cursor:pointer;min-width:0}.legend button[aria-pressed=true]{background:var(--subtle);border-color:var(--line)}.legend button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}.swatch{width:13px;height:13px;background:var(--team-color);flex:none;border-radius:2px;box-shadow:0 0 0 1px var(--line)}.team-code{font-weight:700;min-width:23px}.legend-name{overflow-wrap:anywhere;font-size:13px}.hint{font-size:13px;color:var(--muted);display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap}.hint button{font:inherit;background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer}.selection{min-height:26px;padding-top:9px;font-size:14px}.chart-shell{border-bottom:1px solid var(--line);margin-bottom:20px}.plot{width:100%;height:650px}.shape-key{font-size:13px;display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);padding:2px 0 10px}.shape-key b{color:var(--fg)}.fa-rail{padding:13px 0 17px;display:flex;gap:8px 19px;flex-wrap:wrap;font-size:13px}.fa-rail strong{font-weight:650}.free-agents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}.position-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:0}.position-head span{font-size:12px;color:var(--muted)}.fa-list{list-style:none;padding:0;margin:0}.fa-row{padding:11px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:8px;align-items:start}.rank{font-size:13px;color:var(--muted);padding-top:2px}.player-name{font-weight:600}.fa-detail{font-size:12px;color:var(--muted);margin-top:2px}.forecast{font-variant-numeric:tabular-nums;text-align:right;font-weight:650}.forecast small{display:block;font-size:11px;color:var(--muted);font-weight:400}.warning{color:var(--alert)}.fa-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.method{margin-top:25px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px}.method summary{cursor:pointer;color:var(--fg)}.method li{margin:7px 0}.roster-list{font-size:13px;margin-top:15px}.roster-list ul{columns:3;list-style:none;padding:0;gap:20px}.roster-list li{break-inside:avoid;padding:4px 0}.health-note{margin:13px 0 18px;font-size:13px;color:var(--muted)}.health-note strong{color:var(--alert)}a{color:var(--accent)}.js-plotly-plot .plotly .modebar{background:transparent!important}#error{color:var(--alert);padding:20px;display:none}
+  @media(max-width:850px){main{padding:20px 16px}.legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}.free-agents{grid-template-columns:1fr;gap:24px}.plot{height:580px}.roster-list ul{columns:2}}
+  @media(max-width:430px){.plot{height:535px}.legend-name{font-size:12px}.legend button{padding:6px 2px;gap:6px}.roster-list ul{columns:1}.meta{font-size:12px}}
+  #label-overflow[hidden],#missing-free-agents[hidden]{display:none}
+  .centers-section{margin:22px 0 28px}.center-table-wrap{overflow-x:auto;margin-top:14px}.center-table{width:100%;border-collapse:collapse;font-size:14px}.center-table th,.center-table td{text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}.center-table th{font-size:12px;font-weight:600;color:var(--muted)}.center-table th:nth-child(2),.center-table td:nth-child(2){text-align:left;white-space:normal;min-width:185px}.center-table th:first-child,.center-table td:first-child{text-align:left;padding-left:0}.team-rank-button{display:inline-flex;align-items:center;gap:9px;background:none;border:0;color:var(--fg);padding:3px 0;font:inherit;text-align:left;cursor:pointer}.team-rank-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.center-table small{display:block;color:var(--muted);font-size:11px}.center-table tr[data-active="true"]{background:var(--subtle)}.center-score{font-weight:650}.centers-section details{font-size:13px;color:var(--muted);margin-top:12px}.centers-section summary{color:var(--fg);cursor:pointer}.centers-section details p{max-width:1000px}
+  .ruler-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0 0}.ruler-toolbar label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.ruler-toolbar select{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:5px}.ranking-ruler{position:relative;width:100%;margin-top:5px}.ranking-ruler>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.ruler-label{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:var(--bg);color:var(--fg);border:0;border-radius:4px;padding:1px 3px;cursor:pointer;font:13px/1.3 system-ui,sans-serif;text-align:center;white-space:nowrap}.ruler-label small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}.ruler-label:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.ruler-label[data-active="true"]{background:var(--subtle);box-shadow:inset 0 -2px var(--team-color)}.ruler-direction{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:0 13px}.ruler-detail{min-height:22px;margin:8px 0 0;font-size:13px;color:var(--muted)}
+  .chart-corner-guide{display:flex;justify-content:space-between;gap:12px;padding-left:82px;padding-right:35px;color:var(--muted);font-size:12px;line-height:1.35;margin:10px 0}.chart-corner-guide>div{max-width:48%;overflow-wrap:normal}.chart-corner-guide>div:last-child{text-align:right}.chart-corner-guide strong{font-weight:600}.chart-corner-guide small{display:block;font-size:11px;margin-top:3px}
+  .power-table-wrap{overflow-x:auto;margin:14px 0}.power-table{width:100%;border-collapse:collapse;font-size:14px}.power-table th,.power-table td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}.power-table th{font-size:12px;color:var(--muted)}.power-table td:nth-child(2),.power-table td:nth-child(3){text-align:center;font-variant-numeric:tabular-nums}.power-table small{display:block;margin-top:4px;font-size:12px;color:var(--muted)}.power-table tr[data-active="true"]{background:var(--subtle)}.power-table .team-rank-button .swatch{flex-shrink:0}.power-table th:first-child{width:28%}.power-reading p{max-width:1000px}@media(max-width:430px){.power-table{font-size:12px}.power-table th,.power-table td{padding:8px 4px}.power-table th,.power-table small{font-size:11px}}
+  .weekly-nav{margin:18px 0 24px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.weekly-nav label{display:block;font-size:13px;color:var(--muted);margin:10px 0 5px}.weekly-nav select{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px;max-width:100%}.weekly-links{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin-top:12px}.weekly-stale{color:var(--alert)}
+</style>
+<script src="/fantasy-league-explorer/assets/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+<main id="league-explorer">
+  <div class="eyebrow">FANTASY FOOTBALL / WEEKLY EXPLORER</div>
+  <h1>Why Your Lineup Is Broken</h1>
+  <p class="muted">Compare 2025 with 2026 to spot players who have fallen off, stayed steady, or are rising in usage and efficiency. Tap a team to explore its players.</p>
+  <p id="snapshot" class="meta"></p>
+  <!-- WEEKLY_NAV -->
+  <nav id="legend" class="legend" aria-label="Highlight a fantasy team"></nav>
+  <div class="hint"><span>Hover or focus a team to show its roster and free-agent labels. Click or tap to keep it highlighted.</span><button id="clear" type="button">Show all teams</button></div>
+  <div id="selection" class="selection" aria-live="polite">All teams · markers visible, labels hidden</div>
+  <div class="chart-shell">
+    <div id="chart-corners-top" class="chart-corner-guide" aria-label="Upper chart corners">
+      <div><strong>Fewer touches<br>Better efficiency</strong><small>Trade-off</small></div>
+      <div><strong>More touches<br>Better efficiency</strong><small>Both improving</small></div>
+    </div>
+    <div id="chart" class="plot" role="img" aria-label="Interactive scatter plot comparing changes in touches per game and full-PPR points per touch. Hover points for player details."></div>
+    <div id="chart-corners-bottom" class="chart-corner-guide" aria-label="Lower chart corners">
+      <div><strong>Fewer touches<br>Worse efficiency</strong><small>Both declining</small></div>
+      <div><strong>More touches<br>Worse efficiency</strong><small>Trade-off</small></div>
+    </div>
+    <div id="error" role="alert"></div>
+    <div class="shape-key"><span><b>●</b> RB</span><span><b>■</b> WR</span><span><b>▲</b> TE</span><span><b>◇</b> Highlighted team's center of mass</span><span><b>Outlined position markers:</b> free agents</span><span>* Fewer than 5 games in either period</span></div>
+    <div id="label-overflow" class="fa-rail" hidden aria-label="Highlighted player labels kept clear of chart markers"></div>
+    <div id="missing-free-agents" class="fa-rail" aria-label="Free agents without a comparable chart baseline"></div>
+  </div>
+  <section class="centers-section" aria-labelledby="share-ranking-heading">
+    <h2 id="share-ranking-heading">Team ranking distance</h2>
+    <p class="muted">Rankings describe improvement since 2025—not who has the best roster or is most likely to win.</p>
+    <div class="metric-guide">
+      <p class="meta"><strong>2D center distance: “How different are these teams?”</strong> Measures the straight-line distance between their average player positions on the chart, considering both touches and points per touch on comparable scales. Teams can have similar ranking scores but a large distance if one improved through more touches and the other through better efficiency.</p>
+      <p class="meta"><strong>COM score gap: “How far apart are their improvement scores?”</strong> Combines changes in touches and points per touch into one score, with equal weight. Teams with similar scores appear close together. This is the clearer view of ranking separation.</p>
+      <p class="meta">Both modes keep the same ranking order; only the spacing changes. COM (center of mass) is each team’s average player position. COM score gap is the default to make ranking separation easier to compare; choose 2D center distance to explore differences in roster trends.</p>
+    </div>
+    <div class="ruler-toolbar"><span class="meta">Physical spacing between neighboring COM ranks</span><label for="ranking-ruler-mode">Spacing by <select id="ranking-ruler-mode"><option value="distance">2D center distance</option><option value="score" selected>COM score gap</option></select></label></div>
+    <div id="ranking-ruler" class="ranking-ruler" role="group" aria-label="Team ranking distance line"></div>
+    <div class="ruler-direction"><span>Lower-ranked (COM)</span><span>Higher-ranked (COM) →</span></div>
+    <p id="ranking-ruler-caption" class="meta"></p>
+    <p id="ranking-ruler-detail" class="ruler-detail" aria-live="polite">Hover a team point or label to compare it with the team above.</p>
+  </section>
+  <section class="centers-section" aria-labelledby="power-heading">
+    <h2 id="power-heading">Improvement vs. projected power</h2>
+    <p class="muted">Improvement (COM) asks “Who has risen most since 2025?” Projected power asks “How highly does ESPN currently rank this team?” They measure different things. In both columns, #1 is best.</p>
+    <p id="power-source" class="meta"></p>
+    <div class="power-table-wrap">
+      <table class="power-table" aria-label="Team improvement and ESPN projected power ranking comparison">
+        <thead><tr><th scope="col">Team</th><th scope="col">COM<br>rank</th><th scope="col">Projected<br>power rank</th><th scope="col">Rank<br>difference</th></tr></thead>
+        <tbody id="power-ranking"></tbody>
+      </table>
+    </div>
+    <p class="meta">Sorted by improvement rank. Hover, focus or tap a team name to highlight its players. Rank differences count places, not points, and do not measure how much stronger one team is.</p>
+    <details class="power-reading"><summary>What the combinations can mean</summary>
+      <p><strong>Power ranks better than improvement: established strength.</strong> A team can rank highly without much year-over-year growth because already-good players remain good. Strong draft picks may contribute, but the ranks alone cannot establish draft quality or actual high performance; trades, waivers and lineup choices may also matter.</p>
+      <p><strong>Improvement ranks better than power: momentum, not necessarily strength.</strong> Players may be rising from a low starting point without becoming elite. Injuries, positional balance and contributions outside RB/WR/TE may also help explain the difference.</p>
+      <p><strong>High on both: strength plus momentum.</strong> A favorable projected team rank is paired with relatively strong improvement among comparable players. That is encouraging, not a guarantee of future wins.</p>
+      <p><strong>Low on both: two reasons to review the roster.</strong> Lower projected power and weaker relative improvement may suggest areas to strengthen. It does not prove poor drafting; injuries, missing baselines and small samples can affect the picture.</p>
+      <p><strong>Similar ranks: the two views broadly agree.</strong> That agreement can occur near the top, middle or bottom. A one-place difference should not be treated as a major signal.</p>
+    </details>
+    <p class="meta">Different scope: improvement equally weights comparable RB/WR/TE, including bench and IR, and excludes players without a historical baseline. Projected power is ESPN’s team-level projection—not a verified performance ranking or league standings. The snapshots cannot isolate the effect of drafting or explain ESPN’s ranking formula.</p>
+  </section>
+
+  <p id="share-notes" class="meta"></p>
+  <details class="method"><summary>Coverage and interpretation</summary><div id="share-exclusions"></div></details>
+</main>
+<script>
+(() => {
+  'use strict';
+  // Pure screen-space label placement: never changes any observation coordinates.
+function labelHitsPoint(box,point,gap=3){
+  const dx=Math.max(box.x-point.x,0,point.x-(box.x+box.w));
+  const dy=Math.max(box.y-point.y,0,point.y-(box.y+box.h));
+  return dx*dx+dy*dy<=(point.r+gap)**2;
+}
+
+function labelsOverlap(a,b,gap=3){
+  return a.x<b.x+b.w+gap&&a.x+a.w+gap>b.x&&a.y<b.y+b.h+gap&&a.y+a.h+gap>b.y;
+}
+
+function placePlayerLabels({width,height,points,labels}){
+  const placed=[],overflow=[],inset=4;
+  const crowded=label=>points.reduce((n,p)=>n+(Math.hypot(p.x-label.px,p.y-label.py)<90?1:0),0);
+  const ordered=labels.map(l=>({...l,crowding:crowded(l)}))
+    .sort((a,b)=>(a.priority??0)-(b.priority??0)||b.crowding-a.crowding||String(a.id).localeCompare(String(b.id)));
+  for(const label of ordered){
+    if(label.w>width-inset*2||label.h>height-inset*2){overflow.push(label);continue;}
+    const options=[],seen=new Set();
+    const add=(x,y)=>{
+      x=Math.max(inset,Math.min(width-label.w-inset,x));
+      y=Math.max(inset,Math.min(height-label.h-inset,y));
+      const key=`${Math.round(x)}:${Math.round(y)}`;
+      if(seen.has(key))return;seen.add(key);
+      options.push({x,y,w:label.w,h:label.h,distance:Math.hypot(x+label.w/2-label.px,y+label.h/2-label.py)});
+    };
+    for(const offset of [16,30,48,72,104,144,196,260]){
+      for(const dy of [-offset-label.h,-label.h/2,offset])for(const dx of [offset,-label.w-offset,-label.w/2])add(label.px+dx,label.py+dy);
+    }
+    // Search empty regions as a fallback instead of accepting a collision.
+    for(let y=inset;y<=height-label.h-inset;y+=12)for(let x=inset;x<=width-label.w-inset;x+=12)add(x,y);
+    options.sort((a,b)=>a.distance-b.distance);
+    const box=options.find(box=>!points.some(p=>labelHitsPoint(box,p))&&!placed.some(p=>labelsOverlap(box,p.box)));
+    if(box)placed.push({...label,box});else overflow.push(label);
+  }
+  return {placed,overflow};
+}
+
+  // Unroll the rank-adjacent 2D distances onto one line, or use the actual scalar
+// COM scores. Marker coordinates stay exact; only text labels may move.
+function layoutRankingRuler(centers,{width,mode='distance'}={}){
+  if(!Number.isFinite(width)||width<120)throw new Error('Ranking ruler needs a finite width of at least 120 pixels');
+  if(!['distance','score'].includes(mode))throw new Error('Unknown ranking ruler metric');
+  const rows=centers.filter(c=>Number.isFinite(c.score)&&Number.isInteger(c.rank)).map(c=>({...c}));
+  if(new Set(rows.map(c=>c.teamId)).size!==rows.length)throw new Error('Ranking ruler team IDs must be unique');
+  rows.sort((a,b)=>a.rank-b.rank||b.score-a.score||a.teamCode.localeCompare(b.teamCode));
+  let chain=0;
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];
+    if(i&&row.rank!==rows[i-1].rank){
+      if(!Number.isFinite(row.distanceAbove)||row.distanceAbove<0)throw new Error('A non-leading rank needs a finite adjacent distance');
+      chain+=row.distanceAbove;
+    }
+    row.chainDistance=chain;
+  }
+  const values=rows.map(c=>mode==='score'?c.score:-c.chainDistance);
+  const min=values.length?Math.min(...values):0,max=values.length?Math.max(...values):0;
+  const left=24,right=width-24,span=max-min;
+  const nodes=rows.map((row,i)=>({...row,value:values[i],x:span>1e-12?left+(values[i]-min)/span*(right-left):width/2}));
+  const boxes=[];
+  const labelWidth=Math.min(width<480?84:92,width-16),labelHeight=44;
+  for(const node of [...nodes].sort((a,b)=>a.x-b.x||a.rank-b.rank)){
+    const options=[];
+    // Text can stagger into extra lanes on small screens. Points never stagger.
+    for(let level=0;level<nodes.length;level++){
+      for(const side of [-1,1]){
+        const y=side<0?-60-level*52:16+level*52;
+        const shifts=[0,-12,12,-24,24,-40,40,-64,64];
+        if(width<500)for(let x=4;x<=width-labelWidth-4;x+=8)shifts.push(x+labelWidth/2-node.x);
+        for(const shift of shifts){
+          const x=Math.max(4,Math.min(width-labelWidth-4,node.x-labelWidth/2+shift));
+          const box={x,y,w:labelWidth,h:labelHeight};
+          const overlaps=boxes.some(b=>box.x<b.x+b.w+5&&box.x+box.w+5>b.x&&box.y<b.y+b.h+5&&box.y+box.h+5>b.y);
+          if(!overlaps)options.push({...box,cost:level*200+Math.abs(x+labelWidth/2-node.x)+(side>0?1:0)});
+        }
+      }
+      if(options.length)break;
+    }
+    const box=options.sort((a,b)=>a.cost-b.cost)[0];
+    if(!box)throw new Error('Could not place a ranking ruler label');
+    node.label=box;boxes.push(box);
+  }
+  const minY=Math.min(-10,...boxes.map(b=>b.y)),maxY=Math.max(10,...boxes.map(b=>b.y+b.h));
+  const baseline=12-minY,height=maxY-minY+24;
+  for(const node of nodes){node.y=baseline;node.label.y+=baseline;}
+  const byX=[...nodes].sort((a,b)=>a.x-b.x);
+  const positiveGaps=byX.slice(1).map((n,i)=>n.x-byX[i].x).filter(d=>d>1e-8);
+  const radius=positiveGaps.length?Math.max(2,Math.min(6,Math.min(...positiveGaps)/2-1)):6;
+  return{mode,width,height,baseline,left,right,radius,nodes};
+}
+
+function compareImprovementToPower(improvementRank,powerRank,teamCount){
+  const valid=value=>Number.isInteger(value)&&value>=1&&value<=teamCount;
+  if(!valid(improvementRank)||!valid(powerRank))return{gap:null,label:'Comparison unavailable',reading:'A valid rank is needed in both measures.'};
+  const gap=improvementRank-powerRank;
+  const topHalf=Math.ceil(teamCount/2);
+  const profile=improvementRank<=topHalf&&powerRank<=topHalf?'Top half on both measures':improvementRank>topHalf&&powerRank>topHalf?'Bottom half on both measures':powerRank<=topHalf?'Top-half projected power; lower-half improvement':'Top-half improvement; lower-half projected power';
+  return{gap,label:gap===0?'Same rank':`${gap>0?'Power':'Improvement'} ${Math.abs(gap)} ${Math.abs(gap)===1?'place':'places'} ahead`,reading:profile};
+}
+
+  const data=/* WEEKLY_DATA */;
+  const dark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const darkPalette={1:'#7ab9ef',2:'#9bb2ff',4:'#68d8b6',5:'#ff9a6f',6:'#bb9bff',7:'#f494d2',8:'#65d5e1',9:'#dbc75c'};
+  const paint=p=>dark?(darkPalette[p.teamId??p.id]??p.color):p.color;
+  const chart=document.getElementById('chart'),legend=document.getElementById('legend');
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt=(v,n=1)=>v===null?'Not available':Number(v).toFixed(n);
+  const signed=(v,n=2)=>`${v>=0?'+':''}${v.toFixed(n)}`;
+  const weekLabel=data.projectionWeeks.length?`Weeks ${data.projectionWeeks[0]}–${data.projectionWeeks.at(-1)}`:'No remaining regular-season weeks';
+  const when=new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short',timeZoneName:undefined}).format(new Date(data.observedAt));
+  const freshness=document.getElementById('weekly-freshness');
+  if(data.completedThrough<18&&(Date.now()-Date.parse(data.observedAt))/86400000>8){freshness.textContent='This snapshot is over 8 days old. An update may be delayed; the last validated data is still shown.';freshness.classList.add('weekly-stale');}
+  const rosterMissing=data.owned.filter(p=>!p.plottable),faMissing=data.freeAgents.filter(p=>!p.plottable);
+  const centers=data.centerOfMass.teams.filter(c=>c.score!==null),centerByTeam=new Map(centers.map(c=>[c.teamId,c]));
+  document.getElementById('snapshot').textContent=`ESPN snapshot: ${when} · ${data.owned.length} rostered RB/WR/TE (${data.owned.length-rosterMissing.length} plotted) · actuals through Week ${data.completedThrough} · weekly refresh · no live scoring`;
+  const health=p=>p.injuryStatus==='ACTIVE'?'Active':String(p.injuryStatus??'UNKNOWN').replaceAll('_',' ').toLowerCase();
+  const availability=p=>p.availability==='WAIVERS'?'Waiver claim required':'Free agent';
+  const shortName=p=>{const parts=p.name.split(' ');return parts.length>1?`${parts[0][0]}. ${parts.slice(1).join(' ')}`:p.name};
+  const rosterStatus=p=>p.slotId===21?'IR':p.slotId===20?'Bench':'Lineup';
+  const tooltip=p=>`<b>${esc(p.name)} · ${p.position}${p.smallSample?' *':''}</b><br>${esc(p.teamId?p.teamName:availability(p))}<br>${esc(health(p))}${p.teamId?' · '+rosterStatus(p):''}<br><br>Δ touches/game: <b>${signed(p.x)}</b><br>Δ PPR/touch: <b>${signed(p.y,3)}</b><br>2025: ${fmt(p.previous.touchesPerGame)} touches/game · ${fmt(p.previous.pprPerTouch,2)} PPR/touch (${p.previous.games} games)<br>2026: ${fmt(p.current.touchesPerGame)} touches/game · ${fmt(p.current.pprPerTouch,2)} PPR/touch (${p.current.games} games)<br>2026 actual PPR/game: ${fmt(p.current.pprPerGame)}<br><br>${weekLabel} forecast: <b>${fmt(p.forwardTotal)} PPR total</b><br>${p.forecast.map(w=>`W${w.week}: ${fmt(w.points)}`).join(' · ')}<br>Calendar-week average: ${fmt(p.forwardAverage)} PPR${p.teamId?'':`<br>Available ${p.position} rank: #${p.faRank}`}${p.smallSample?'<br><i>Small sample: fewer than 5 games.</i>':''}`;
+  let pinned=null,hovered=null,active=null,ready=false,queue=Promise.resolve(),annotationsBusy=false,annotationsAgain=false;
+  let lastLabelLayout={placed:[],overflow:[]};
+  const measureCanvas=document.createElement('canvas'),measureContext=measureCanvas.getContext('2d');
+  measureContext.font='12px system-ui, sans-serif';
+  const traces=[],tracePlayers=[];
+  const teamButtons=[],centerRows=[];
+  const ruler=document.getElementById('ranking-ruler'),rulerMode=document.getElementById('ranking-ruler-mode');
+  let rulerButtons=[],rulerState=null;
+  function bindTeamButton(button,teamId){
+    teamButtons.push(button);
+    button.addEventListener('pointerenter',()=>{hovered=teamId;setActive(hovered)});
+    button.addEventListener('pointerleave',()=>{hovered=null;setActive(pinned)});
+    button.addEventListener('focus',()=>setActive(teamId));
+    button.addEventListener('blur',()=>setActive(hovered??pinned));
+    button.addEventListener('click',()=>{pinned=pinned===teamId?null:teamId;setActive(pinned)});
+  }
+  const symbols={RB:'circle',WR:'square',TE:'triangle-up'};
+  data.teams.forEach(team=>{
+    const players=data.owned.filter(p=>p.teamId===team.id&&p.plottable);
+    tracePlayers.push(players);
+    traces.push({type:'scatter',mode:'markers',name:team.name,showlegend:false,x:players.map(p=>p.x),y:players.map(p=>p.y),customdata:players.map(p=>p.id),text:players.map(tooltip),hovertemplate:'%{text}<extra></extra>',meta:{teamId:team.id,kind:'team'},opacity:.8,marker:{color:paint(team),size:12,symbol:players.map(p=>symbols[p.position]),line:{color:'#ffffff',width:1}}});
+    const button=document.createElement('button');button.type='button';button.dataset.teamId=team.id;button.setAttribute('aria-pressed','false');button.style.setProperty('--team-color',paint(team));button.innerHTML=`<span class="swatch" aria-hidden="true"></span><span class="team-code">${team.code}</span><span class="legend-name">${esc(team.name)}</span>`;
+    bindTeamButton(button,team.id);
+    legend.append(button);
+  });
+  for(const position of ['RB','WR','TE']){
+    const players=data.freeAgents.filter(p=>p.position===position&&p.plottable);
+    tracePlayers.push(players);
+    traces.push({type:'scatter',mode:'markers',name:`Free agents · ${position}`,showlegend:false,x:players.map(p=>p.x),y:players.map(p=>p.y),customdata:players.map(p=>p.id),text:players.map(tooltip),hovertemplate:'%{text}<extra></extra>',meta:{kind:'free-agent',position},opacity:1,marker:{color:'#fff7d7',size:16,symbol:symbols[position],line:{color:'#263742',width:2.3}}});
+  }
+  // Reveal the highlighted center and its next-higher comparison only. Keep
+  // all centers hidden in the default view; never move their coordinates.
+  for(const c of centers){
+    const team=data.teams.find(t=>t.id===c.teamId);
+    tracePlayers.push([]);
+    traces.push({type:'scatter',mode:'markers',name:`${c.teamName} center`,showlegend:false,visible:false,x:[c.centerX],y:[c.centerY],opacity:0,meta:{kind:'center',teamId:c.teamId},
+      text:[`<b>${esc(c.teamName)} · center of mass</b><br>Improvement rank: #${c.rank}<br>Usage center: ${signed(c.centerX)} touches/game (rank #${c.usageRank})<br>Efficiency center: ${signed(c.centerY,3)} PPR/touch (rank #${c.efficiencyRank})<br>Equal-axis score: ${signed(c.score,3)}<br>${c.distanceAbove===null?'No higher-ranked team':`To #${c.aboveRank} ${c.aboveTeamCode}: ${fmt(c.distanceAbove,3)} SD distance · ${fmt(c.scoreGapAbove,3)} score gap`}<br>${c.plotted}/${c.total} rostered RB/WR/TE included · ${c.smallSamples} small samples<br><i>Historical improvement, not predicted wins.</i>`],hovertemplate:'%{text}<extra></extra>',marker:{symbol:'diamond-open',size:28,color:paint(team),line:{width:3}}});
+  }
+  // A final foreground trace keeps the highlighted team's markers above every
+  // background team and FA trace, without altering any player coordinates.
+  const foregroundIndex=traces.length;
+  tracePlayers.push([]);
+  traces.push({type:'scatter',mode:'markers',name:'Highlighted team',showlegend:false,x:[],y:[],customdata:[],text:[],hovertemplate:'%{text}<extra></extra>',meta:{kind:'foreground'},opacity:1,marker:{color:'#007e91',size:18,symbol:[],line:{color:dark?'#131b24':'#ffffff',width:2.5}}});
+  const all=[...data.owned,...data.freeAgents].filter(p=>p.plottable);
+  const extent=(key)=>{const values=all.map(p=>p[key]),lo=Math.min(0,...values),hi=Math.max(0,...values),pad=(hi-lo)*.13||1;return[lo-pad,hi+pad]};
+  const rgba=(hex,alpha)=>`rgba(${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)},${alpha})`;
+  const css=()=>{const styles=getComputedStyle(document.documentElement);const probe=document.createElement('span');probe.style.color='var(--fg)';document.body.append(probe);const fg=getComputedStyle(probe).color;probe.style.color='var(--line)';const line=getComputedStyle(probe).color;probe.style.color='var(--panel)';const panel=getComputedStyle(probe).color;probe.style.color='var(--muted)';const muted=getComputedStyle(probe).color;probe.remove();return{fg,line,panel,muted}};
+  const theme=css();
+  const layout={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:theme.panel,font:{family:'system-ui, sans-serif',color:theme.fg,size:12},margin:{l:82,r:35,t:35,b:80},hovermode:'closest',hoverdistance:22,dragmode:'pan',uirevision:'league-usage-v1',
+    xaxis:{title:{text:'Change in touches per game since 2025',standoff:16},range:extent('x'),gridcolor:theme.line,zeroline:true,zerolinecolor:theme.muted,zerolinewidth:1,ticks:'outside',ticklen:4,automargin:true},
+    yaxis:{title:{text:'Change in full-PPR points per touch',standoff:13},range:extent('y'),gridcolor:theme.line,zeroline:true,zerolinecolor:theme.muted,zerolinewidth:1,ticks:'outside',ticklen:4,automargin:true},
+    hoverlabel:{bgcolor:theme.panel,bordercolor:theme.line,font:{color:theme.fg,size:12}},annotations:[],shapes:[]};
+  const config={responsive:true,displaylogo:false,scrollZoom:false,modeBarButtonsToRemove:['select2d','lasso2d','toggleSpikelines'],toImageButtonOptions:{format:'png',filename:'league-player-chart',scale:2}};
+  function setActive(teamId){
+    active=teamId;
+    const team=data.teams.find(t=>t.id===active),missing=data.owned.filter(p=>p.teamId===active&&!p.plottable);
+    const center=centerByTeam.get(active);
+    document.getElementById('selection').textContent=team?`${team.name} · ${center?'center-of-mass rank #'+center.rank+' · ':''}${data.owned.filter(p=>p.teamId===active).length} rostered · ${missing.length} without a comparable baseline · free-agent labels shown`:'All teams · markers visible, labels hidden';
+    teamButtons.forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.teamId)===pinned)));
+    rulerButtons.forEach(b=>{b.setAttribute('aria-pressed',String(Number(b.dataset.teamId)===pinned));b.dataset.active=String(Number(b.dataset.teamId)===active)});
+    centerRows.forEach(row=>row.dataset.active=String(Number(row.dataset.teamId)===active));
+    const rulerCenter=centerByTeam.get(active);
+    document.getElementById('ranking-ruler-detail').textContent=rulerCenter?`${rulerCenter.teamName} · COM #${rulerCenter.rank} · score ${signed(rulerCenter.score,3)} · ${rulerCenter.aboveRank?`${fmt(rulerCenter.distanceAbove,3)} SD from #${rulerCenter.aboveRank} ${rulerCenter.aboveTeamName}; ${fmt(rulerCenter.scoreGapAbove,3)} score gap`:'No higher-ranked team'}`:'Hover a team point or label to compare it with the team above.';
+    if(!ready)return;
+    queue=queue.then(async()=>{
+      const selected=active;
+      const aboveId=centerByTeam.get(selected)?.aboveTeamId;
+      const opacity=traces.map(t=>['free-agent','foreground'].includes(t.meta.kind)?1:t.meta.kind==='center'?(t.meta.teamId===selected?1:t.meta.teamId===aboveId?.5:0):selected===null?.8:t.meta.teamId===selected?0:.09);
+      const visible=traces.map(t=>t.meta.kind==='center'?(t.meta.teamId===selected||t.meta.teamId===aboveId):true);
+      const sizes=traces.map(t=>t.meta.kind==='center'?28:t.meta.kind==='foreground'?18:t.meta.kind==='free-agent'?16:12);
+      await Plotly.restyle(chart,{opacity,visible,'marker.size':sizes});
+      const players=data.owned.filter(p=>p.teamId===selected&&p.plottable),team=data.teams.find(t=>t.id===selected);
+      await Plotly.restyle(chart,{x:[players.map(p=>p.x)],y:[players.map(p=>p.y)],customdata:[players.map(p=>p.id)],text:[players.map(tooltip)],'marker.symbol':[players.map(p=>symbols[p.position])],'marker.color':team?paint(team):theme.fg},[foregroundIndex]);
+      await updateAnnotations();
+      chart.dataset.activeTeam=selected??'all';
+    }).catch(showError);
+  }
+  function buildAnnotations(){
+    const guideAxis=chart._fullLayout?.xaxis;
+    if(guideAxis){
+      const left=guideAxis._offset??82,right=Math.max(0,chart.getBoundingClientRect().width-left-guideAxis._length);
+      for(const id of ['chart-corners-top','chart-corners-bottom']){
+        const guide=document.getElementById(id);guide.style.paddingLeft=left+'px';guide.style.paddingRight=right+'px';
+      }
+    }
+    const overflow=document.getElementById('label-overflow');
+    if(!chart._fullLayout||active===null){lastLabelLayout={placed:[],overflow:[]};overflow.hidden=true;overflow.replaceChildren();return{annotations:[],shapes:[]};}
+    const full=chart._fullLayout,xa=full.xaxis,ya=full.yaxis,w=xa._length,h=ya._length;
+    const selected=[...data.owned.filter(p=>p.plottable&&p.teamId===active),...data.freeAgents.filter(p=>p.plottable)];
+    const visible=p=>{const x=xa.l2p(p.x),y=ya.l2p(p.y);return x>=0&&x<=w&&y>=0&&y<=h;};
+    const points=all.filter(visible).map(p=>({id:p.id,x:xa.l2p(p.x),y:ya.l2p(p.y),r:p.teamId===active?12:p.teamId?8:11}));
+    const center=centerByTeam.get(active);
+    const above=centerByTeam.get(center?.aboveTeamId);
+    for(const c of [center,above].filter(Boolean))if(visible({x:c.centerX,y:c.centerY}))points.push({id:`center-${c.teamId}`,x:xa.l2p(c.centerX),y:ya.l2p(c.centerY),r:22});
+    const labels=selected.filter(visible).map(p=>{
+      const text=p.teamId?shortName(p):`FA ${p.position} ${p.faRank} · ${shortName(p)}`;
+      return{id:p.id,p,text,priority:p.teamId?0:1,px:xa.l2p(p.x),py:ya.l2p(p.y),w:Math.ceil(measureContext.measureText(text).width)+12,h:24};
+    });
+    lastLabelLayout=placePlayerLabels({width:w,height:h,points,labels});
+    const annotations=[],shapes=[];
+    if(center&&above)shapes.push({name:'center-gap',type:'line',xref:'x',yref:'y',x0:center.centerX,y0:center.centerY,x1:above.centerX,y1:above.centerY,layer:'below',line:{color:theme.muted,width:1.4,dash:'dot'}});
+    for(const label of lastLabelLayout.placed){
+      const {p,box}=label,cx=box.x+box.w/2,cy=box.y+box.h/2;
+      annotations.push({name:`player-${p.id}`,x:xa.p2l(cx),y:ya.p2l(cy),xref:'x',yref:'y',xanchor:'center',yanchor:'middle',text:esc(label.text),showarrow:false,bgcolor:theme.panel,borderpad:1,font:{family:'system-ui, sans-serif',color:p.teamId?paint(p):theme.fg,size:12},captureevents:false});
+      const ex=Math.max(box.x,Math.min(box.x+box.w,label.px)),ey=Math.max(box.y,Math.min(box.y+box.h,label.py));
+      shapes.push({type:'line',xref:'x',yref:'y',x0:p.x,y0:p.y,x1:xa.p2l(ex),y1:ya.p2l(ey),layer:'below',line:{color:p.teamId?rgba(paint(p),.4):theme.muted,width:.7}});
+    }
+    overflow.hidden=!lastLabelLayout.overflow.length;
+    overflow.innerHTML=lastLabelLayout.overflow.length?'<strong>Extra labels, kept off the points:</strong>'+lastLabelLayout.overflow.map(l=>`<span>${esc(l.p.name)} · ${l.p.teamId?l.p.teamCode:'FA #'+l.p.faRank} · ${l.p.position}</span>`).join(''):'';
+    return{annotations,shapes};
+  }
+  async function updateAnnotations(){
+    if(annotationsBusy){annotationsAgain=true;return;}
+    annotationsBusy=true;
+    try{
+      do{annotationsAgain=false;await Plotly.relayout(chart,buildAnnotations())}while(annotationsAgain);
+    }finally{annotationsBusy=false}
+  }
+  function showError(error){document.getElementById('error').style.display='block';document.getElementById('error').textContent=`The chart could not update: ${error.message}`;console.error(error)}
+  function renderRankingRuler(){
+    const width=Math.max(120,ruler.getBoundingClientRect().width);
+    const mode=rulerMode.value==='score'?'score':'distance';
+    rulerState=layoutRankingRuler(centers,{width,mode});
+    ruler.replaceChildren();rulerButtons=[];ruler.style.height=`${rulerState.height}px`;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox',`0 0 ${width} ${rulerState.height}`);svg.setAttribute('aria-hidden','true');
+    const links=[],marks=[];
+    for(const node of rulerState.nodes){
+      const team=data.teams.find(t=>t.id===node.teamId),box=node.label;
+      const edgeY=box.y+box.h<node.y?box.y+box.h:box.y;
+      links.push(`<path d="M${node.x},${node.y}L${box.x+box.w/2},${edgeY}" fill="none" stroke="var(--line)" stroke-width="1"/>`);
+      marks.push(`<circle data-team-point="${node.teamId}" cx="${node.x}" cy="${node.y}" r="${rulerState.radius}" fill="${paint(team)}" stroke="var(--bg)" stroke-width="1"/>`);
+    }
+    svg.innerHTML=`<line x1="${rulerState.left}" y1="${rulerState.baseline}" x2="${rulerState.right}" y2="${rulerState.baseline}" stroke="var(--muted)" stroke-width="1.5"/>${links.join('')}${marks.join('')}`;
+    const pointAt=event=>{
+      const rect=svg.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
+      if(Math.abs(y-rulerState.baseline)>18)return null;
+      const node=[...rulerState.nodes].sort((a,b)=>Math.abs(a.x-x)-Math.abs(b.x-x))[0];
+      return node&&Math.abs(node.x-x)<=18?node:null;
+    };
+    svg.addEventListener('pointermove',event=>{
+      const node=pointAt(event),target=node?.teamId??pinned;
+      hovered=node?.teamId??null;
+      if(target!==active)setActive(target);
+    });
+    svg.addEventListener('pointerleave',()=>{hovered=null;if(active!==pinned)setActive(pinned)});
+    svg.addEventListener('pointerdown',event=>{const node=pointAt(event);if(!node)return;pinned=pinned===node.teamId?null:node.teamId;setActive(pinned)});
+    ruler.append(svg);
+    for(const node of rulerState.nodes){
+      const team=data.teams.find(t=>t.id===node.teamId),button=document.createElement('button');
+      button.type='button';button.className='ruler-label';button.dataset.teamId=node.teamId;button.dataset.active=String(node.teamId===active);
+      button.style.left=`${node.label.x}px`;button.style.top=`${node.label.y}px`;button.style.width=`${node.label.w}px`;button.style.height=`${node.label.h}px`;button.style.setProperty('--team-color',paint(team));
+      button.setAttribute('aria-pressed',String(node.teamId===pinned));
+      button.setAttribute('aria-label',`${node.teamName}, COM rank ${node.rank}, score ${fmt(node.score,3)}${node.aboveRank?', '+fmt(node.distanceAbove,3)+' standardized distance and '+fmt(node.scoreGapAbove,3)+' score gap from rank '+node.aboveRank:', leader'}`);
+      button.innerHTML=`<span><strong>${node.teamCode}</strong> #${node.rank}</span><small>${mode==='score'?signed(node.score,3):node.aboveRank?fmt(node.distanceAbove,3)+' SD to #'+node.aboveRank:'Leader'}</small>`;
+      button.addEventListener('pointerenter',()=>{hovered=node.teamId;setActive(hovered)});
+      button.addEventListener('pointerleave',()=>{hovered=null;setActive(pinned)});
+      button.addEventListener('focus',()=>setActive(node.teamId));button.addEventListener('blur',()=>setActive(hovered??pinned));
+      button.addEventListener('click',()=>{pinned=pinned===node.teamId?null:node.teamId;setActive(pinned)});
+      ruler.append(button);rulerButtons.push(button);
+    }
+    document.getElementById('ranking-ruler-caption').textContent=mode==='score'?'COM score gap: wider gaps mean a larger difference in improvement scores. Similar scores appear close together.':'2D center distance: wider gaps mean neighboring teams differ more in usage/efficiency trends—not necessarily a bigger ranking-score advantage. Distances across several teams add up the neighboring gaps; they are not the direct distance between those teams on the chart.';
+  }
+  rulerMode.addEventListener('change',renderRankingRuler);
+  new ResizeObserver(()=>{if(Math.abs(ruler.getBoundingClientRect().width-(rulerState?.width??0))>.5)renderRankingRuler()}).observe(ruler);
+  renderRankingRuler();
+  document.getElementById('share-notes').textContent=`Weekly read-only snapshot · ${data.centerOfMass.reference.count}/${data.owned.length} rostered RB/WR/TE have comparable statistics. Rankings describe improvement since 2025—not who has the best roster or is most likely to win.`;
+  const missingNames=rosterMissing.map(p=>esc(p.name)+' ('+p.teamCode+')').join(', ');
+  document.getElementById('share-exclusions').innerHTML=`<p>Comparison: 2025 season totals vs completed 2026 Weeks 1–${data.completedThrough}; partial Week ${data.completedThrough+1} excluded. Touches = carries + receptions. Rushing/receiving full-PPR scoring, not league half-PPR.</p><p>Each comparable rostered RB/WR/TE has equal mass, including bench and IR. The ranking gives standardized usage and efficiency equal weight. Free agents are excluded from the ranking. Small samples and roster mix can influence it. Scores are not win probabilities.</p><p>Players without comparable coordinates: ${missingNames}.</p><p>Future forecasts on hover are raw ESPN forecasts, not independently injury-adjusted. The weekly view is rebuilt after completed weeks; refresh this page to load the latest successful update. Archived snapshots retain the data observed when they were published.</p>`;
+  const rail=document.getElementById('missing-free-agents');
+  if(faMissing.length)rail.innerHTML='<strong>Available players without comparable coordinates:</strong>'+faMissing.map(p=>`<span>${esc(p.name)} · ${p.position}</span>`).join('');else rail.hidden=true;
+  const projectedRanks=new Map(data.powerComparison.teams.map(team=>[team.teamId,team.projectedRank]));
+  const powerWhen=new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(data.powerComparison.observedAt));
+  document.getElementById('power-source').textContent=`Power source: ESPN current projected team rank · snapshot ${powerWhen} · published weekly, not live scoring. Copied from ESPN, not calculated from the improvement model.`;
+  for(const center of data.centerOfMass.teams){
+    const team=data.teams.find(item=>item.id===center.teamId);
+    const powerRank=projectedRanks.get(center.teamId);
+    const comparison=compareImprovementToPower(center.rank,powerRank,data.teams.length);
+    const row=document.createElement('tr');row.dataset.teamId=team.id;centerRows.push(row);
+    const teamCell=document.createElement('td'),teamButton=document.createElement('button');
+    teamButton.type='button';teamButton.className='team-rank-button';teamButton.dataset.teamId=team.id;
+    teamButton.setAttribute('aria-pressed','false');teamButton.style.setProperty('--team-color',paint(team));
+    teamButton.innerHTML=`<span class="swatch" aria-hidden="true"></span><span>${esc(team.code)} · ${esc(team.name)}</span>`;
+    teamCell.append(teamButton);bindTeamButton(teamButton,team.id);row.append(teamCell);
+    const improvementCell=document.createElement('td');improvementCell.textContent=center.rank===null?'Unavailable':'#'+center.rank;row.append(improvementCell);
+    const powerCell=document.createElement('td');powerCell.textContent=Number.isInteger(powerRank)&&powerRank>0&&powerRank<=data.teams.length?'#'+powerRank:'Unavailable';row.append(powerCell);
+    const gapCell=document.createElement('td');gapCell.textContent=comparison.label;
+    const profile=document.createElement('small');profile.textContent=comparison.reading;gapCell.append(profile);row.append(gapCell);
+    document.getElementById('power-ranking').append(row);
+  }
+
+  document.getElementById('clear').addEventListener('click',()=>{pinned=null;hovered=null;setActive(null)});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=null;hovered=null;setActive(null)}});
+  if(typeof Plotly==='undefined'){showError(new Error('The bundled Plotly library did not load'));return}
+  Plotly.newPlot(chart,traces,layout,config).then(async()=>{
+    ready=true;await updateAnnotations();chart.dataset.ready='true';chart.dataset.activeTeam='all';
+    chart.on('plotly_relayout',event=>{if(!('annotations'in event)&&!('shapes'in event)&&!annotationsBusy)updateAnnotations().catch(showError)});
+    let timer;new ResizeObserver(()=>{clearTimeout(timer);timer=setTimeout(()=>{Plotly.Plots.resize(chart).then(updateAnnotations).catch(showError)},100)}).observe(chart);
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>location.reload());
+    window.leagueChart={data,chart,whenSettled:()=>queue,getActive:()=>active,getLabelLayout:()=>lastLabelLayout,getRulerLayout:()=>rulerState};
+  }).catch(showError);
+})();
+</script>
+</body>
+</html>

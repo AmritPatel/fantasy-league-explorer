@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "season": 2026,
+  "entries": [
+    {
+      "key": "2026-week-07-20261101T070513Z",
+      "completedThrough": 7,
+      "observedAt": "2026-11-01T07:05:13.051Z",
+      "href": "weekly/snapshots/2026-week-07-20261101T070513Z.html",
+      "dataHref": "weekly/data/2026-week-07-20261101T070513Z.json",
+      "fingerprint": "e930cd5c4747736fed032fe6d96063e16a924b6837ea1a594cd093dbe4d0246f",
+      "rosteredPlayers": 102
+    }
+  ]
+}

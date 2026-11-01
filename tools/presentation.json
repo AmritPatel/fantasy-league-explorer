@@ -1,0 +1,15 @@
+{
+  "season": 2026,
+  "basePath": "/fantasy-league-explorer/",
+  "expectedTeams": 8,
+  "teams": {
+    "1": { "code": "Bo", "color": "#0072B2" },
+    "2": { "code": "Iz", "color": "#243B6B" },
+    "4": { "code": "TN", "color": "#009E73" },
+    "5": { "code": "Wh", "color": "#D44D16" },
+    "6": { "code": "Hi", "color": "#7954CE" },
+    "7": { "code": "TD", "color": "#C7479A" },
+    "8": { "code": "Ka", "color": "#007E91" },
+    "9": { "code": "Li", "color": "#A17B00" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "fantasy-league-explorer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tools/*.test.mjs",
+    "refresh": "node tools/refresh-weekly.mjs",
+    "build": "node tools/build-site.mjs"
+  },
+  "engines": { "node": ">=22" }
+}
