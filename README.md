@@ -4,8 +4,9 @@ A standalone, read-only fantasy-football chart with player usage/efficiency chan
 
 ## Views
 
-- `/` is the original frozen October 31, 2026 snapshot. The weekly pipeline checks its checksum and never rewrites it.
-- `/weekly/` is the latest validated weekly view.
+- `/` is the latest validated weekly view and the main sharing URL.
+- `/weekly/` remains a compatibility view of the same latest page, so existing links keep working.
+- `/snapshot/` preserves the original frozen October 31, 2026 chart. The pipeline checks its checksum and preserves its contents exactly.
 - `/weekly/history.html` lists all published weekly snapshots. Older revisions remain available when a correction or roster/forecast update creates a new publication.
 
 Statistics compare the 2025 baseline against fully official 2026 regular-season weeks. COM ranks historical improvement, not absolute roster strength or predicted wins. ESPN projected ranks are copied from ESPN, not computed by the COM model.
@@ -46,6 +47,6 @@ npm run refresh  # requires the three session environment variables
 npm run build
 ```
 
-`tools/presentation.json` fixes the season and team color/abbreviation mapping. Move to a new season deliberately rather than silently changing the baseline. `tools/frozen.sha256` protects the original page. The public build contains only the original page, library/license assets and sanitized weekly views/data—not the collector or its environment.
+`tools/presentation.json` fixes the season and team color/abbreviation mapping. Move to a new season deliberately rather than silently changing the baseline. The repository's `index.html` is the frozen source, protected by `tools/frozen.sha256`; the build copies it to `/snapshot/` and renders the latest weekly view to the deployed main `index.html` and `/weekly/index.html`. Archive data/source HTML stay unchanged; deployed archive navigation links are adjusted to the new home and snapshot locations. The public build contains only library/license assets, the preserved snapshot and sanitized weekly views/data—not the collector or its environment. QB data is intentionally excluded to retain the same usage/efficiency comparison across RB/WR/TE.
 
 Plotly.js 2.35.2 is bundled with its upstream copyright notice and MIT license in `LICENSE-Plotly.txt`.

@@ -12,16 +12,16 @@ export function fingerprint(data){
 export function renderWeekly({template,data,manifest,basePath,archive=false}){
   validatePublicData(data);
   if(!/^\/[A-Za-z0-9/_-]+\/$/.test(basePath))throw new DataCheckError('BASE_PATH');
-  const options=`<option value="${basePath}weekly/"${archive?'':' selected'}>Latest weekly view</option>`+manifest.entries.map(entry=>`<option value="${escape(basePath+entry.href)}"${archive&&entry.observedAt===data.observedAt?' selected':''}>Through Week ${entry.completedThrough} · ${escape(entry.observedAt.slice(0,10))} ${escape(entry.observedAt.slice(11,16))} UTC</option>`).join('');
+  const options=`<option value="${basePath}"${archive?'':' selected'}>Latest weekly view</option>`+manifest.entries.map(entry=>`<option value="${escape(basePath+entry.href)}"${archive&&entry.observedAt===data.observedAt?' selected':''}>Through Week ${entry.completedThrough} · ${escape(entry.observedAt.slice(0,10))} ${escape(entry.observedAt.slice(11,16))} UTC</option>`).join('');
   const nav=`<section class="weekly-nav" aria-label="Weekly publication status">
     <strong>${archive?'Archived snapshot':'Latest weekly view'} · ${data.season} through Week ${data.completedThrough}</strong>
     <p id="weekly-freshness" class="meta">Validated ${escape(data.observedAt)}. Checks run Tuesday–Thursday at 06:37 UTC (12:22 PM Nepal time). Refresh this page to see a newer publication.</p>
     <p class="meta">Only fully official game weeks are included. Rosters and available players reflect the refresh time—not historical ownership during those games. ${data.projectionWeeks.length?'':'The regular season is complete; there are no remaining regular-season forecasts.'}</p>
     <label for="weekly-history">Explore published snapshots</label><select id="weekly-history">${options}</select>
-    <div class="weekly-links"><a href="${basePath}weekly/">Latest weekly view</a><a href="${basePath}weekly/history.html">All weekly snapshots</a><a href="${basePath}">Original frozen snapshot</a></div>
+    <div class="weekly-links"><a href="${basePath}">Latest weekly view</a><a href="${basePath}weekly/history.html">All weekly snapshots</a><a href="${basePath}snapshot/">Original frozen snapshot</a></div>
   </section>`;
   let html=template.replace('/* WEEKLY_DATA */',()=>JSON.stringify(data).replaceAll('<','\\u003c')).replace('<!-- WEEKLY_NAV -->',()=>nav);
-  html=html.replace("  const rosterMissing=",`  document.getElementById('weekly-history').addEventListener('change',event=>{if(event.target.value===${JSON.stringify(basePath+'weekly/')}||event.target.value.startsWith(${JSON.stringify(basePath+'weekly/snapshots/')}))location.assign(event.target.value)});
+  html=html.replace("  const rosterMissing=",`  document.getElementById('weekly-history').addEventListener('change',event=>{if(event.target.value===${JSON.stringify(basePath)}||event.target.value===${JSON.stringify(basePath+'weekly/')}||event.target.value.startsWith(${JSON.stringify(basePath+'weekly/snapshots/')}))location.assign(event.target.value)});
   const rosterMissing=`);
   if(archive)html=html.replace("if(data.completedThrough<18&&(Date.now()", "if(false&&data.completedThrough<18&&(Date.now()");
   const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
@@ -31,7 +31,11 @@ export function renderWeekly({template,data,manifest,basePath,archive=false}){
 }
 export function renderHistory(manifest,basePath){
   const groups=manifest.entries.map(entry=>`<li><a href="${escape(basePath+entry.href)}">${manifest.season} · through Week ${entry.completedThrough}</a> — published ${escape(entry.observedAt)} · ${entry.rosteredPlayers} rostered RB/WR/TE</li>`).join('\n');
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Weekly archive · Fantasy League Explorer</title><style>:root{color-scheme:light dark}body{font:16px/1.6 system-ui,sans-serif;max-width:850px;margin:40px auto;padding:0 20px}li{margin:14px 0}a{color:light-dark(#006680,#74d2e0)}</style></head><body><h1>Weekly snapshot archive</h1><p>Each publication preserves the validated data available at that refresh. Multiple snapshots for one week may reflect stat corrections, roster moves or updated forecasts. They do not reconstruct historical ownership.</p><p><a href="${basePath}weekly/">Latest weekly view</a> · <a href="${basePath}">Original frozen snapshot</a></p><ol>${groups}</ol></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><title>Weekly archive · Fantasy League Explorer</title><style>:root{color-scheme:light dark}body{font:16px/1.6 system-ui,sans-serif;max-width:850px;margin:40px auto;padding:0 20px}li{margin:14px 0}a{color:light-dark(#006680,#74d2e0)}</style></head><body><h1>Weekly snapshot archive</h1><p>Each publication preserves the validated data available at that refresh. Multiple snapshots for one week may reflect stat corrections, roster moves or updated forecasts. They do not reconstruct historical ownership.</p><p><a href="${basePath}">Latest weekly view</a> · <a href="${basePath}snapshot/">Original frozen snapshot</a></p><ol>${groups}</ol></body></html>`;
+}
+export function updateArchiveLinks(html,basePath){
+  return html.replaceAll(`<a href="${basePath}">Original frozen snapshot</a>`,`<a href="${basePath}snapshot/">Original frozen snapshot</a>`)
+    .replaceAll(`<a href="${basePath}weekly/">Latest weekly view</a>`,`<a href="${basePath}">Latest weekly view</a>`);
 }
 async function writeAtomic(filename,contents){
   await fs.mkdir(path.dirname(filename),{recursive:true});
