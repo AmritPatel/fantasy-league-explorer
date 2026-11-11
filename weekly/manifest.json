@@ -3,6 +3,15 @@
   "season": 2026,
   "entries": [
     {
+      "key": "2026-week-09-20261111T144030Z",
+      "completedThrough": 9,
+      "observedAt": "2026-11-11T14:40:30.968Z",
+      "href": "weekly/snapshots/2026-week-09-20261111T144030Z.html",
+      "dataHref": "weekly/data/2026-week-09-20261111T144030Z.json",
+      "fingerprint": "deffda7a166b293ef717dbb3b64edae51e9f1dacc3d05ddaac54dad876366283",
+      "rosteredPlayers": 102
+    },
+    {
       "key": "2026-week-09-20261110T151104Z",
       "completedThrough": 9,
       "observedAt": "2026-11-10T15:11:04.120Z",
